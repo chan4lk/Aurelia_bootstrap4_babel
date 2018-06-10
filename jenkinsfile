@@ -13,6 +13,8 @@ node {
      
 	  bat './node_modules/.bin/au build'
     bat 'dotnet publish --output "C:/inetpub/wwwroot/blue"'
+    def msg = powershell(returnStdout: true, script: 'Write-Output "PowerShell is mighty!"')
+    println msg
       
    }
    stage('Results') {      
