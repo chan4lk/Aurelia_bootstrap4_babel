@@ -1,0 +1,22 @@
+node {
+	
+   stage('Preparation') { // for display purposes
+      // Get some code from a GitHub repository
+     checkout scm 
+  
+   }
+   stage('Build') {
+		withNPM(npmrcConfig:'custom') {
+            echo "Performing npm install..."
+            bat 'npm install'
+    }
+    echo "Performing au build..."
+	  bat '.\node_modules\.bin\au build'
+     echo "Performing dotnet publish..."
+    bat(/"dotnet" publish/)
+      
+   }
+   stage('Results') {      
+      archive 'bin/Release/*.*'
+   }
+}
