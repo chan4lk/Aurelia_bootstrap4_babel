@@ -12,9 +12,12 @@ node {
     }
      
 	  bat './node_modules/.bin/au build'    
-    def msg = powershell(returnStdout: true, script: 'deploy.ps1')
-    println msg
+   
       
+   }
+   stage('Deploy') {
+      def msg = powershell(returnStdout: true, script: './deploy.ps1')
+      println msg
    }
    stage('Results') {      
       archive 'bin/debug/*.*'
