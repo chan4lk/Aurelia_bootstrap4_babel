@@ -1,30 +1,17 @@
-Param(
-  [string]$server,
-  [string]$blue,
-  [string]$green
+﻿Param(
+  [string]$server = "localhost",
+  [string]$blue = "blue.app.qa",
+  [string]$green = "green.app.qa"
 )
 import-module webadministration
-Stop-Website -Name "$blue"
-
-dotnet publish
-
-Remove-WebBinding -Name $green -HostHeader "green.app.qa"
-Remove-WebBinding -Name $blue -HostHeader "blue.app.qa"
-
-New-WebBinding -name $blue -port 80 -Protocol http -HostHeader green.app.qa -IPAddress "*"
-New-WebBinding -name $green -port 80 -Protocol http -HostHeader blue.app.qa -IPAddress "*"
-
-Start-WebSite -Name $blue
-
 
 function rename($searchString,$replaceString){ 
-  foreach ($website in Get-Website) {
-      "Site: {0}" -f $website.name
+  "replacing: {0} ---> {1}" -f $searchString, $replaceString
+  foreach ($website in Get-Website) {      
       $bindings = Get-WebBinding -Name $website.name
       foreach ($binding in $website.bindings.Collection) {
-          $bindingInfo = $binding.bindingInformation
-          "    Binding: {0}" -f $bindingInfo
-          if ($bindingInfo -imatch $searchString) {
+          $bindingInfo = $binding.bindingInformation         
+          if ($bindingInfo -imatch $searchString) {            
               $oldhost = $bindingInfo.Split(':')[-1]
               $newhost = $oldhost -ireplace $searchString, $replaceString
               "        Updating host: {0} ---> {1}" -f $oldhost, $newhost
@@ -33,3 +20,49 @@ function rename($searchString,$replaceString){
       }
   }
 }
+
+function findSite($header){ 
+  foreach ($website in Get-Website) {      
+      $bindings = Get-WebBinding -Name $website.name
+      foreach ($binding in $website.bindings.Collection) {
+          $bindingInfo = $binding.bindingInformation          
+          if ($bindingInfo -imatch $header) {
+              $select = $website.name
+              return $select;
+          }
+      }
+  }
+  return "";
+}
+
+function findPath($header){ 
+  foreach ($website in Get-Website) {      
+      $bindings = Get-WebBinding -Name $website.name
+      foreach ($binding in $website.bindings.Collection) {
+          $bindingInfo = $binding.bindingInformation          
+          if ($bindingInfo -imatch $header) {
+              $select = $website.PhysicalPath
+              return $select;
+          }
+      }
+  }
+  return "";
+}
+
+$blueSite = findSite -header $blue 
+$greenSite = findSite -header $green
+
+$output = findPath -header $blue
+
+write-host "bluesite $blueSite path $output"
+write-host "greensite $greenSite"
+
+Stop-Website -Name "$blueSite"
+
+dotnet publish --output $output
+
+rename -searchString $green -replaceString "temp"
+rename -searchString $blue -replaceString $green
+rename -searchString "temp" -replaceString $blue
+
+Start-WebSite -Name "$blueSite"
