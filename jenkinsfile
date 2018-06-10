@@ -10,9 +10,7 @@ node {
             echo "Performing npm install..."
             bat 'npm install'
     }
-    echo "Performing au build..."
 	  bat '.\node_modules\.bin\au build'
-     echo "Performing dotnet publish..."
     bat(/"dotnet" publish/)
       
    }
