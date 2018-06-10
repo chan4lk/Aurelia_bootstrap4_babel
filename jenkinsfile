@@ -12,7 +12,7 @@ node {
     }
      
 	  bat './node_modules/.bin/au build'
-      bat 'dotnet publish'
+    bat 'dotnet publish --output "C:/inetpub/wwwroot/blue"'
       
    }
    stage('Results') {      
