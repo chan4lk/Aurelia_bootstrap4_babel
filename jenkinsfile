@@ -7,14 +7,15 @@ node {
    }
    stage('Build') {
 		withNPM(npmrcConfig:'custom') {
-            echo "Performing npm install..."
+            echo "Performing npm build..."
             bat 'npm install'
     }
-	  bat '.\node_modules\.bin\au build'
-    bat(/"dotnet" publish/)
+     
+	  bat './node_modules/.bin/au build'
+      bat 'dotnet publish'
       
    }
    stage('Results') {      
-      archive 'bin/Release/*.*'
+      archive 'bin/debug/*.*'
    }
 }
