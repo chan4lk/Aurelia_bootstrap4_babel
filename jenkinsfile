@@ -5,20 +5,19 @@ node {
      checkout scm 
   
    }
+   
    stage('Build') {
 		withNPM(npmrcConfig:'custom') {
             echo "Performing npm build..."
             bat 'npm install'
-    }
-     
-	  bat './node_modules/.bin/au build'    
-   
-      
+    }     
+	  bat './node_modules/.bin/au build'
    }
+
    stage('Deploy') {
-      def msg = powershell(returnStdout: true, script: './deploy.ps1')
-      println msg
+     bat "C:/Windows/SysNative/WindowsPowerShell/v1.0/Powershell.exe -ExecutionPolicy ByPass -noprofile -file \"./deploy.ps1\" -server \"localhost\" "
    }
+
    stage('Results') {      
       archive 'bin/debug/*.*'
    }
